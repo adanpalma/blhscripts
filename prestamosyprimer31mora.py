@@ -1,22 +1,17 @@
 import csv
+import pyodbc
 from timeit import default_timer as timer
 
-import pyodbc
-
-query = (
-    "select riesgopa_noprestamo,riesgopa_fechasubida,riesgopa_producto,riesgopa_fechadesem, riesgopa_estatusmora,"
-    "riesgopa_empresadeud1,riesgopa_empnomdeud1 from dbo.PAN_SQT_RIESGOPA where year(riesgopa_fechadesem) >= 2011 order by 1"
-)
+query = "select riesgopa_noprestamo,riesgopa_fechasubida,riesgopa_producto,riesgopa_fechadesem, riesgopa_estatusmora," \
+        "riesgopa_empresadeud1,riesgopa_empnomdeud1 from dbo.PAN_SQT_RIESGOPA where year(riesgopa_fechadesem) >= 2011 order by 1"
 prestamos = {}
-filename = "mesesprimer31plusmora.csv"
+filename = 'mesesprimer31plusmora.csv'
 mora = "31-60 DAYS"
 
-conn = pyodbc.connect(
-    "Driver={SQL Server Native Client 11.0}; "
-    "Server=10.10.20.37;"
-    "Database=RISKPAN;"
-    "Trusted_Connection=yes;"
-)
+conn = pyodbc.connect("Driver={SQL Server Native Client 11.0}; "
+                      "Server=10.10.20.37;"
+                      "Database=RISKPAN;"
+                      "Trusted_Connection=yes;")
 
 
 def createcursor(conn):
@@ -25,42 +20,35 @@ def createcursor(conn):
     return cursor
 
 
-start = (
-    timer()
-)  # solo para tener idea del tiempo que consume usando pyodbc.. Otra opcion es usando pandas
+start = timer()  # solo para tener idea del tiempo que consume usando pyodbc.. Otra opcion es usando pandas
 cursor = createcursor(conn)
 
 
 def executeqry(cursor, query):
-    return cursor.execute(query)
+    return (cursor.execute(query))
 
 
 rows = executeqry(cursor, query)
 
+
 # delinquency = {'Producto': '', 'Empleador ':0, Delinquency': []}
 def inserta_llave_dict(no_prestamo, diccionario, row):
-    delinquency = {
-        "Producto": "",
-        "EmpleadorDesembolso": "",
-        "EmpleadorActual": "",
-        "NombreEmpDesembolso": "",
-        "NombreEmpActual": "",
-        "Delinquency": [],
-    }
+    delinquency = {'Producto': '',
+                   'EmpleadorDesembolso': '',
+                   'EmpleadorActual': '',
+                   'NombreEmpDesembolso': '',
+                   'NombreEmpActual': '',
+                   'Delinquency': []}
     diccionario[no_prestamo] = delinquency
-    diccionario[no_prestamo]["Producto"] = row.riesgopa_producto
-    diccionario[no_prestamo]["EmpleadorDesembolso"] = (row.riesgopa_empresadeud1,)
-    diccionario[no_prestamo]["NombreEmpDesembolso"] = (row.riesgopa_empnomdeud1,)
-    diccionario[no_prestamo]["Delinquency"].append(row.riesgopa_estatusmora)
+    diccionario[no_prestamo]['Producto'] = row.riesgopa_producto
+    diccionario[no_prestamo]['EmpleadorDesembolso'] = row.riesgopa_empresadeud1,
+    diccionario[no_prestamo]['NombreEmpDesembolso'] = row.riesgopa_empnomdeud1,
+    diccionario[no_prestamo]['Delinquency'].append(row.riesgopa_estatusmora)
 
 
 def actualiza_empleador_actual(rowanterior, diccionario):
-    diccionario[rowanterior.riesgopa_noprestamo][
-        "EmpleadorActual"
-    ] = rowanterior.riesgopa_empresadeud1
-    diccionario[rowanterior.riesgopa_noprestamo][
-        "NombreEmpActual"
-    ] = rowanterior.riesgopa_empnomdeud1
+    diccionario[rowanterior.riesgopa_noprestamo]['EmpleadorActual'] = rowanterior.riesgopa_empresadeud1
+    diccionario[rowanterior.riesgopa_noprestamo]['NombreEmpActual'] = rowanterior.riesgopa_empnomdeud1
 
 
 # Al tener varios registros del mismo prestamo, se lee el primer registro de
@@ -75,9 +63,7 @@ ultimoregistro: pyodbc.Row
 for row in rows:
 
     if rowanterior.riesgopa_noprestamo == row.riesgopa_noprestamo:
-        prestamos[row.riesgopa_noprestamo]["Delinquency"].append(
-            row.riesgopa_estatusmora
-        )
+        prestamos[row.riesgopa_noprestamo]['Delinquency'].append(row.riesgopa_estatusmora)
         ultimoregistro = row
 
     else:
@@ -92,37 +78,22 @@ for row in rows:
 # donde encuentre el primer 61+ indica cuantos meses posteriores al desembolso empezo
 # a pagar mal
 try:
-    with open(filename, "w", newline="") as f:
+    with open(filename, 'w', newline='') as f:
         fcsv = csv.writer(f)
-        titulo = [
-            "Prestamo",
-            "Producto",
-            "MesesPrimer31+",
-            "Empleador Desembolso",
-            "Nombre Empleador Desembolso",
-            "Empleador Actual",
-            "Nombre Empleador Actual",
-        ]
+        titulo = ["Prestamo", "Producto", "MesesPrimer31+", "Empleador Desembolso", "Nombre Empleador Desembolso",
+                  "Empleador Actual", "Nombre Empleador Actual"]
         fcsv.writerow(titulo)
         for loan in prestamos.keys():
             meses = 0
             try:
-                meses = prestamos[loan]["Delinquency"].index(mora) + 1
+                meses = prestamos[loan]['Delinquency'].index(mora) + 1
             except ValueError:
                 meses = 0
-            fila = [
-                str(loan),
-                prestamos[loan]["Producto"],
-                str(meses),
-                prestamos[loan]["EmpleadorDesembolso"],
-                prestamos[loan]["NombreEmpDesembolso"],
-                prestamos[loan]["EmpleadorActual"],
-                prestamos[loan]["NombreEmpActual"],
-            ]
+            fila = [str(loan), prestamos[loan]['Producto'], str(meses), prestamos[loan]['EmpleadorDesembolso'],
+                    prestamos[loan]['NombreEmpDesembolso'], prestamos[loan]['EmpleadorActual'],
+                    prestamos[loan]['NombreEmpActual']]
             fcsv.writerow(fila)
 except PermissionError:
-    print(
-        f"Favor revisar si el archivo {filename} esta siendo usado por otra aplicacion"
-    )
+    print(f"Favor revisar si el archivo {filename} esta siendo usado por otra aplicacion")
 
 print(f"Usando pyodbc el tiempo de proceso fue de ....{timer() - start}")

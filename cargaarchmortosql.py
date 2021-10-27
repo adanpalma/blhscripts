@@ -31,10 +31,22 @@ with open(filename) as filename:
         # dsn= odbcR_to_Sql_RiskPan  es un dsn que debes crear en Windows
         conn = pyodbc.connect( "dsn=odbcR_to_Sql_RiskPan")
 
-
         break
 
+        mySqlStr = f'INSERT INTO {table}(ID, Price, Type) VALUES(%s,%s,%s)'
+        val = myList
 
+
+        try:
+            myCursor = myDb.cursor()
+            myCursor.executemany(mySqlStr, <lista de datos>)
+            myDb.commit()
+            messagebox.showinfo("show info", "Data is saved successfully")
+        except Error as e:
+            messagebox.showinfo("show info", "Data is not saved")
+
+        myDb.close()
+        myCursor.close()
 
 
 

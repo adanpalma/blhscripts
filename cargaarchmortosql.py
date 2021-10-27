@@ -15,12 +15,12 @@ with open(filename) as filename:
         #rango de caracteres, si no lo hay los separo para poder grabar cada columna
         prestamo = row[0:11]
         cartera = row[11:15]
-        periodo = row[15:20]
-        delinquency    = row[20:24]
-        saldoactual = row[24:35]
-        sprogramado = row[35:46]
-        ipagado = row[46:54]
-        tasainteres = row[54:62]
+        periodo = int(row[15:20])
+        delinquency    = int(row[20:24])
+        saldoactual = float(row[24:35])
+        sprogramado = float(row[35:46])
+        ipagado = float(row[46:54])
+        tasainteres = float(row[54:62])
         cobrador = row[62:70]
         print(prestamo,cartera,periodo,delinquency,saldoactual,sprogramado, ipagado,tasainteres,cobrador)
         print(row)

@@ -5,7 +5,7 @@ filename = Path("data\\archmoro-pan-921.txt")
 
 rowstosql = []
 registros_procesados = 0
-max_registros_a_grabar = 50000
+max_registros_a_grabar = 500000
 
 #Conexion a la base de datos
 # dsn= odbcR_to_Sql_RiskPan  es un dsn que debes crear en Windows

@@ -6,6 +6,8 @@ import plotly.express as px
 
 from timeit import default_timer as timer
 
+start = timer()
+
 # pyodbc parameter for conections to database
 driver = '{SQL Server}'
 server = '10.10.20.37'
@@ -38,7 +40,12 @@ df_periodosbyvintages["personal_default_acumulado"] = 0
 # Se lee el deemdefault de cada cosecha, se une al dataframe periodos y se genera un cumsum()
 df_deemed_total: DataFrame = pd.DataFrame()
 primera_vez = 1
-for vvintage in [2019, 2020, 2021]:
+vintage1 = df_periodosbyvintages['vintage'].min()
+vintageN = df_periodosbyvintages['vintage'].max() + 1
+
+
+
+for vvintage in range(vintage1,vintageN):
     qry_deemed = """ select * from DEEMED_DEFAULT_POR_COSECHAS_HIPO where vintage = {} order by 2""".format(vvintage)
     df_deemed_defaults_vintage = pd.read_sql(qry_deemed, engine)
     if primera_vez:
@@ -51,12 +58,13 @@ df_periodosbyvintages = pd.merge(df_periodosbyvintages, df_deemed_total, how='le
 df_periodosbyvintages.fillna(0, inplace=True)
 df_periodosbyvintages['Hipotecas_deemed_acumulado'] = df_periodosbyvintages.groupby('vintage')['percentage_deemed_defaulted'].cumsum()
 
-del df_deemed_defaults_vintage
-del df_deemed_total
 
+# TODO: cambiar el codigo para que grabe en csv los deemed procesados y en otro script graficar ese csv
 df_plotear = df_periodosbyvintages[['vintage','period','Hipotecas_deemed_acumulado']]
 
 plt = px.line(df_plotear,x='period',y='Hipotecas_deemed_acumulado',color='vintage')
 plt.show()
+
+print(f"tiempo transcurrido = {timer()-start}")
 
 

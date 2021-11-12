@@ -58,7 +58,7 @@ def actualiza_empleador_actual(rowanterior, diccionario):
 row = next(rows)
 inserta_llave_dict(row.riesgopa_noprestamo, prestamos, row)
 rowanterior = row
-ultimoregistro: pyodbc.Row
+#ultimoregistro: pyodbc.Row #se declara variable dde tipo Row
 
 for row in rows:
 

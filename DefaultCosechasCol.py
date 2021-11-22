@@ -18,13 +18,14 @@ tener una pestaña nombrada datatape """
 # for some reason openpyxl some times corrupt file
 
 if __name__ == "__main__":
-    path = "/Users/macbook/Documents/LaHipotecaria/"
-    sourcefilename = "datatapecolfitch062021.xlsx"
+
+    path = Path("C:/Users/apalmad/Documents/")
+    sourcefilename = "datatapecolfitch102021.xlsx"
     workfilename = "cop_" + sourcefilename
-    sourcefilename = path + sourcefilename
-    workfilename = path + workfilename
-    sourcefilename = Path(sourcefilename)
-    workfilename = Path(workfilename)
+    sourcefilename = path / sourcefilename
+    workfilename = path / workfilename
+    # sourcefilename = Path(sourcefilename)
+    # workfilename = Path(workfilename)
     copyfile(sourcefilename, workfilename)
 
     try:
@@ -69,3 +70,4 @@ if __name__ == "__main__":
     finally:
         wb.save(workfilename)
         wb.close()
+        print(f'Proceso Concluido, Revise el archivo {workfilename} ')

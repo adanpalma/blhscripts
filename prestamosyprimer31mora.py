@@ -13,23 +13,13 @@ conn = pyodbc.connect("Driver={SQL Server Native Client 11.0}; "
                       "Database=RISKPAN;"
                       "Trusted_Connection=yes;")
 
-
 def createcursor(conn):
     print("Estableciendo Coneccion.....")
     cursor = conn.cursor()
     return cursor
 
-
-start = timer()  # solo para tener idea del tiempo que consume usando pyodbc.. Otra opcion es usando pandas
-cursor = createcursor(conn)
-
-
 def executeqry(cursor, query):
     return (cursor.execute(query))
-
-
-rows = executeqry(cursor, query)
-
 
 # delinquency = {'Producto': '', 'Empleador ':0, Delinquency': []}
 def inserta_llave_dict(no_prestamo, diccionario, row):
@@ -45,11 +35,15 @@ def inserta_llave_dict(no_prestamo, diccionario, row):
     diccionario[no_prestamo]['NombreEmpDesembolso'] = row.riesgopa_empnomdeud1,
     diccionario[no_prestamo]['Delinquency'].append(row.riesgopa_estatusmora)
 
-
 def actualiza_empleador_actual(rowanterior, diccionario):
     diccionario[rowanterior.riesgopa_noprestamo]['EmpleadorActual'] = rowanterior.riesgopa_empresadeud1
     diccionario[rowanterior.riesgopa_noprestamo]['NombreEmpActual'] = rowanterior.riesgopa_empnomdeud1
 
+
+start = timer()  # solo para tener idea del tiempo que consume usando pyodbc.. Otra opcion es usando pandas
+cursor = createcursor(conn)
+
+rows = executeqry(cursor, query)
 
 # Al tener varios registros del mismo prestamo, se lee el primer registro de
 # de toda la tabla para controlar cuando se esta leyendo el mismo prestamo
